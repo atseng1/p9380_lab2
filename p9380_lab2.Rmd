@@ -210,7 +210,7 @@ rstudioapi::documentSave()
 ### HOMEWORK #2
 
 ```{r hw2}
-nj_cty = map('county', 'new jersey', fill=TRUE, col = palette())
+nj_cty = map('county', 'new jersey', fill = TRUE, col = palette())
 
 list.names.nj = strsplit(nj_cty$names,",")
 
@@ -222,26 +222,26 @@ nj_cty_sp = map2SpatialPolygons(nj_cty, IDs = map.IDs, proj4string = CRS("+init=
 rwj = fread("rwj_rank.csv", stringsAsFactors = F, data.table = F, colClasses = list(character = c("FIPS")))
 
 nj_rwj = subset(rwj, State == "New Jersey")
-head(nj_rwj, n = 62)
+head(nj_rwj, n = 21)
 
 nj_rwj$County = gsub("Cape May", "capemay", nj_rwj$County)
-head(nj_rwj$County, n = 62)
+head(nj_rwj$County, n = 21)
 row.names(nj_rwj) = as.character(tolower(nj_rwj$County))
 
-head(row.names(nj_rwj), n = 62)
-head(map.IDs, n = 62)
+head(row.names(nj_rwj), n = 21)
+head(map.IDs, n = 21)
 
 nj_rwj_df = SpatialPolygonsDataFrame(nj_cty_sp,nj_rwj)
 summary(nj_rwj_df)
 
-summary(nj_rwj_df$QL.Rank)
-nj_rwj_df$QL.Rank = as.numeric(nj_rwj_df$QL.Rank)
-summary(nj_rwj_df$QL.Rank)
-nj_rwj_df$QL.Rank = 62 - nj_rwj_df$QL.Rank
+summary(nj_rwj_df$HB.Rank)
+nj_rwj_df$HB.Rank = as.numeric(nj_rwj_df$HB.Rank)
+summary(nj_rwj_df$HB.Rank)
+nj_rwj_df$HB.Rank = 21 - nj_rwj_df$HB.Rank
 
 
 
-plotvar = nj_rwj_df$QL.Rank
+plotvar = nj_rwj_df$HB.Rank
 nclr = 5
 class = classIntervals(plotvar, nclr, style = "quantile")
 plotclr = brewer.pal(nclr, "Greens")
@@ -260,14 +260,14 @@ rwj_sf_nj = st_read(dsn = "working_directory",
 
 nj_map = ggplot(data = rwj_sf_nj) +
   geom_sf() +
-  aes(fill = cut_number(QL_Rank, 5)) +
+  aes(fill = cut_number(HB_Rank, 5)) +
   scale_fill_brewer(name = "Quantile", palette = "Purples", 
                     labels = c("1st",
                              "2nd",
                              "3rd",
                              "4th",
                              "5th")) +
-  labs(title = "County-Level Quality of Life Rank, New Jersey",
+  labs(title = "County-Level Health Behaviors Ranking, New Jersey",
        subtitle = "By Ashley Tseng\n",
        caption = "\nData source: Robert Wood Johnson Foundation") +
   theme(axis.text = element_text(size = 6),                       
