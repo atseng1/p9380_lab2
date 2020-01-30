@@ -240,7 +240,6 @@ summary(nj_rwj_df$HB.Rank)
 nj_rwj_df$HB.Rank = 21 - nj_rwj_df$HB.Rank
 
 
-
 plotvar = nj_rwj_df$HB.Rank
 nclr = 5
 class = classIntervals(plotvar, nclr, style = "quantile")
