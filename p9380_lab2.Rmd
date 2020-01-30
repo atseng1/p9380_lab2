@@ -2,7 +2,7 @@
 title: "p9380_lab2"
 author: "Ashley Tseng"
 date: "1/29/2020"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -190,14 +190,14 @@ map6 = ggplot(data = rwj_sf) +
                              "4th",
                              "5th")) +
   labs(title = "County Level Quality of Life Rank New York State",
-       subtitle = "Ashley Tseng\n",
+       subtitle = "By Ashley Tseng\n",
        caption = "\nData source: Robert Wood Johnson Foundation") +
   theme(axis.text=element_text(size = 6),                       
         axis.title=element_text(size = 6),
         plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
         plot.subtitle = element_text(size = 12, hjust = 0.5),
         plot.caption = element_text(),
-        legend.position = c(0.91, 0.58)) +
+        legend.position = "bottom") +
   north(rwj_sf, scale = 0.15, symbol = 14, location = "bottomleft")
   
 map6
@@ -205,4 +205,83 @@ map6
 
 rstudioapi::documentSave()
 ```
+
+
+### HOMEWORK #2
+
+```{r hw2}
+nj_cty = map('county', 'new jersey', fill=TRUE, col = palette())
+
+list.names.nj = strsplit(nj_cty$names,",")
+
+map.IDs = as.character(tolower(sapply(list.names.nj, function(x) x[2])))
+map.IDs = gsub("cape may", "capemay", map.IDs)
+
+nj_cty_sp = map2SpatialPolygons(nj_cty, IDs = map.IDs, proj4string = CRS("+init=epsg:3424"))
+
+rwj = fread("rwj_rank.csv", stringsAsFactors = F, data.table = F, colClasses = list(character = c("FIPS")))
+
+nj_rwj = subset(rwj, State == "New Jersey")
+head(nj_rwj, n = 62)
+
+nj_rwj$County = gsub("Cape May", "capemay", nj_rwj$County)
+head(nj_rwj$County, n = 62)
+row.names(nj_rwj) = as.character(tolower(nj_rwj$County))
+
+head(row.names(nj_rwj), n = 62)
+head(map.IDs, n = 62)
+
+nj_rwj_df = SpatialPolygonsDataFrame(nj_cty_sp,nj_rwj)
+summary(nj_rwj_df)
+
+summary(nj_rwj_df$QL.Rank)
+nj_rwj_df$QL.Rank = as.numeric(nj_rwj_df$QL.Rank)
+summary(nj_rwj_df$QL.Rank)
+nj_rwj_df$QL.Rank = 62 - nj_rwj_df$QL.Rank
+
+
+
+plotvar = nj_rwj_df$QL.Rank
+nclr = 5
+class = classIntervals(plotvar, nclr, style = "quantile")
+plotclr = brewer.pal(nclr, "Greens")
+colcode = findColours(class, plotclr, digits = 3)
+
+
+writeOGR(nj_rwj_df, 
+         dsn = "working_directory", 
+         layer = "RWJ_NJ", 
+         driver = "ESRI Shapefile")
+
+
+rwj_sf_nj = st_read(dsn = "working_directory",
+                  layer = "RWJ_NJ")
+
+
+nj_map = ggplot(data = rwj_sf_nj) +
+  geom_sf() +
+  aes(fill = cut_number(QL_Rank, 5)) +
+  scale_fill_brewer(name = "Quantile", palette = "Purples", 
+                    labels = c("1st",
+                             "2nd",
+                             "3rd",
+                             "4th",
+                             "5th")) +
+  labs(title = "County-Level Quality of Life Rank, New Jersey",
+       subtitle = "By Ashley Tseng\n",
+       caption = "\nData source: Robert Wood Johnson Foundation") +
+  theme(axis.text = element_text(size = 6),                       
+        axis.title = element_text(size = 6),
+        plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5),
+        plot.caption = element_text(),
+        legend.position = "right") +
+  north(rwj_sf_nj, scale = 0.15, symbol = 1, location = "bottomleft")
+  
+nj_map
+
+
+rstudioapi::documentSave()
+```
+
 
