@@ -69,7 +69,7 @@ coords = st_coordinates(rwj_sf_nj)
 
 nj_map = ggplot(data = rwj_sf_nj) +
   geom_sf() +
-  aes(fill = cut_number(as.numeric(HB_Rank), 5)) +
+  aes(fill = cut_number(as.numeric(as.character(HB_Rank)), 5)) +
   scale_fill_brewer(name = "Quantile", palette = "Purples", 
                     labels = c("1st",
                              "2nd",
